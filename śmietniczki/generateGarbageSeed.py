@@ -1,5 +1,7 @@
 import random
 from datetime import datetime, timedelta
+from tkinter import filedialog
+import tkinter as tk
 
 # Stała konfiguracyjna
 CONFIG = {
@@ -28,8 +30,8 @@ def generate_garbage_data(user_id, bin_id, num_entries):
     return data
 
 # Funkcja do zapisu danych do pliku
-def save_to_file(data, file_name):
-    with open(file_name, 'w') as file:
+def save_to_file(data, file_path):
+    with open(file_path, 'w') as file:
         file.write("const garbageData = [\n")
         for entry in data:
             file.write(f"  {entry},\n")
@@ -47,17 +49,30 @@ def save_to_file(data, file_name):
         file.write("  }))\n")
         file.write("\nexport default createList(garbageData)")
 
+# Funkcja do obsługi okna dialogowego
+def get_file_path():
+    root = tk.Tk()
+    root.withdraw()
+    file_path = filedialog.asksaveasfilename(defaultextension=".js", filetypes=[("JavaScript files", "*.js")])
+    root.destroy()
+    return file_path
+
 # Main
-file_name = 'garbage.js'
+# Pobierz ścieżkę pliku za pomocą okna dialogowego
+file_path = get_file_path()
 
-# Generuj dane dla użytkowników zgodnie z konfiguracją
-all_garbage_data = []
-for user_id in CONFIG['user_ids']:
-    bin_id = CONFIG['dumpster_id_1'] if user_id != 8 else CONFIG['dumpster_id_2']
-    user_data = generate_garbage_data(user_id, bin_id, CONFIG['entries_per_user'])
-    all_garbage_data.extend(user_data)
+# Sprawdź, czy użytkownik wybrał lokalizację
+if file_path:
+    # Generuj dane dla użytkowników zgodnie z konfiguracją
+    all_garbage_data = []
+    for user_id in CONFIG['user_ids']:
+        bin_id = CONFIG['dumpster_id_1'] if user_id != 8 else CONFIG['dumpster_id_2']
+        user_data = generate_garbage_data(user_id, bin_id, CONFIG['entries_per_user'])
+        all_garbage_data.extend(user_data)
 
-# Zapisz dane do pliku
-save_to_file(all_garbage_data, file_name)
+    # Zapisz dane do pliku
+    save_to_file(all_garbage_data, file_path)
 
-print("Plik został wygenerowany.")
+    print(f"Plik został zapisany w lokalizacji: {file_path}")
+else:
+    print("Anulowano zapisywanie pliku.")
