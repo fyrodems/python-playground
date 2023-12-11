@@ -1,6 +1,5 @@
 import random
 from datetime import datetime, timedelta
-import os
 
 # Funkcja do generowania losowej daty w zakresie od 1 stycznia 2022 do 31 grudnia 2024
 def generate_random_date():
@@ -10,11 +9,9 @@ def generate_random_date():
     return random_date.strftime('%Y-%m-%d %H:%M:%S')
 
 # Funkcja do generowania danych
-def generate_garbage_data(num):
+def generate_garbage_data(user_id, bin_id, num_entries):
     data = []
-    for i in range(1, num + 1):
-        user_id = 4
-        bin_id = 4
+    for i in range(1, num_entries + 1):
         waste_type = random.randint(11, 15)
         weight = random.randint(50, 1000)
         date = generate_random_date()
@@ -31,10 +28,20 @@ def save_to_file(data, file_name):
         file.write("]\n")
 
 # Main
-num_of_runs = 5  # Możesz zmienić tę liczbę na ilość plików, jaką chcesz wygenerować
-for run in range(1, num_of_runs + 1):
-    file_name = f'garbage-{run}.js'
-    garbage_data = generate_garbage_data(10)  # Możesz zmienić tę liczbę na ilość wpisów w pliku
-    save_to_file(garbage_data, file_name)
+file_name = 'garbage.js'
 
-print(f"{num_of_runs} plik(i/ów) zostały wygenerowane.")
+# Generuj 10 rekordów dla użytkowników o id 4, 14, 15 (z id śmietnika równym 4)
+garbage_data_1 = generate_garbage_data(4, 4, 10)
+garbage_data_2 = generate_garbage_data(14, 4, 10)
+garbage_data_3 = generate_garbage_data(15, 4, 10)
+
+# Generuj 10 rekordów dla użytkowników o id 8 (z id śmietnika równym 6)
+garbage_data_4 = generate_garbage_data(8, 6, 10)
+
+# Połącz dane dla wszystkich użytkowników
+all_garbage_data = garbage_data_1 + garbage_data_2 + garbage_data_3 + garbage_data_4
+
+# Zapisz dane do pliku
+save_to_file(all_garbage_data, file_name)
+
+print("Plik został wygenerowany.")
