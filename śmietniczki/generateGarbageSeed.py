@@ -8,7 +8,7 @@ CONFIG = {
     'user_ids': [4, 14, 15, 8],
     'dumpster_id_1': 4,
     'dumpster_id_2': 6,
-    'entries_per_user': 10,
+    'entries_per_user': 10000,
 }
 
 # Funkcja do generowania losowej daty w zakresie od 1 stycznia 2022 do 31 grudnia 2024
@@ -19,9 +19,9 @@ def generate_random_date():
     return random_date.strftime('%Y-%m-%d %H:%M:%S')
 
 # Funkcja do generowania danych
-def generate_garbage_data(user_id, bin_id, num_entries):
+def generate_garbage_data(user_id, bin_id, start_index, num_entries):
     data = []
-    for i in range(1, num_entries + 1):
+    for i in range(start_index, start_index + num_entries):
         waste_type = random.randint(11, 15)
         weight = random.randint(50, 1000)
         date = generate_random_date()
@@ -31,23 +31,9 @@ def generate_garbage_data(user_id, bin_id, num_entries):
 
 # Funkcja do zapisu danych do pliku
 def save_to_file(data, file_path):
-    with open(file_path, 'w') as file:
-        file.write("const garbageData = [\n")
+    with open(file_path, 'a') as file:  # Zmieniono 'w' na 'a' (append), aby kontynuować zapis do istniejącego pliku
         for entry in data:
             file.write(f"  {entry},\n")
-        file.write("]\n")
-
-        # Dodaj strukturę createList na koniec pliku
-        file.write("\nconst createList = (list) => {\n")
-        file.write("  return list.map((g) => ({\n")
-        file.write("    garbage_ID: g[0],\n")
-        file.write("    garbage_usersID: g[1],\n")
-        file.write("    garbage_dumpsterID: g[2],\n")
-        file.write("    garbage_typeID: g[3],\n")
-        file.write("    garbage_weight: g[4],\n")
-        file.write("    garbage_date: new Date(g[5]),\n")
-        file.write("  }))\n")
-        file.write("\nexport default createList(garbageData)")
 
 # Funkcja do obsługi okna dialogowego
 def get_file_path():
@@ -65,10 +51,13 @@ file_path = get_file_path()
 if file_path:
     # Generuj dane dla użytkowników zgodnie z konfiguracją
     all_garbage_data = []
+    start_index = 1
+
     for user_id in CONFIG['user_ids']:
         bin_id = CONFIG['dumpster_id_1'] if user_id != 8 else CONFIG['dumpster_id_2']
-        user_data = generate_garbage_data(user_id, bin_id, CONFIG['entries_per_user'])
+        user_data = generate_garbage_data(user_id, bin_id, start_index, CONFIG['entries_per_user'])
         all_garbage_data.extend(user_data)
+        start_index += CONFIG['entries_per_user']
 
     # Zapisz dane do pliku
     save_to_file(all_garbage_data, file_path)
